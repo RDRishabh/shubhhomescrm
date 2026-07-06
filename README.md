@@ -1,5 +1,19 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+## Aether CRM — Scalable Real Estate Dashboard
+
+A production-grade, role-aware dashboard built per the 11-module specification.
+
+**Tech:** Next.js 16 (App Router), TypeScript, Tailwind + modern CSS, framer-motion, Recharts, Sonner toasts.
+
+**Highlights:**
+- Role switcher (Admin / Manager / Agent / Finance) with RBAC-aware views and AI responses
+- Fully interactive AI Dashboard Chatbot with intelligent mock natural-language queries
+- Live pipeline funnel with AI drop-off highlights
+- Animated KPI tiles, task completion, revenue charts
+- Real-time-feeling interactions: quick actions + working Add Lead modal, notifications panel
+- Clean, scalable component structure ready for API integration
+
 ## Getting Started
 
 First, run the development server:

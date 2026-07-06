@@ -1,0 +1,115 @@
+// Prisma schema for Aether CRM - Neon Postgres
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Core CRM Entities
+
+model Lead {
+  id            String    @id @default(cuid())
+  name          String
+  phone         String
+  email         String
+  source        String    // Website, Meta Ads, etc.
+  stage         String    // New, Contacted, Visit, ...
+  budget        Float
+  project       String
+  assignedTo    String
+  createdAt     DateTime  @default(now())
+  lastActivity  DateTime  @updatedAt
+  tags          String[]  // Hot, Warm...
+  value         Float
+  updatedAt     DateTime  @updatedAt
+}
+
+model Unit {
+  id          String   @id @default(cuid())
+  project     String
+  tower       String
+  floor       Int
+  unitNumber  String
+  type        String   // 2BHK, 3BHK...
+  area        Float
+  status      String   // Available, Hold, Booked, Sold
+  price       Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Booking {
+  id              String   @id @default(cuid())
+  leadId          String
+  leadName        String
+  unitId          String
+  unitNumber      String
+  project         String
+  agreementValue  Float
+  bookingDate     DateTime @default(now())
+  paymentPlan     String
+  status          String   @default("Active") // Active, Cancelled
+  createdAt       DateTime @default(now())
+}
+
+model Payment {
+  id         String    @id @default(cuid())
+  bookingId  String
+  leadName   String
+  amount     Float
+  dueDate    DateTime
+  paidDate   DateTime?
+  status     String    // Pending, Paid, Overdue
+  mode       String?
+  receiptNo  String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // RERA, Layout, Template...
+  project     String?
+  size        String
+  uploadedAt  DateTime @default(now())
+  url         String?  // For future real storage
+}
+
+model Agent {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  avatar    String
+  team      String?
+  target    Float
+  achieved  Float
+  calls     Int      @default(0)
+  visits    Int      @default(0)
+  bookings  Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+// Optional supporting entities
+model Workflow {
+  id        String  @id @default(cuid())
+  name      String
+  trigger   String
+  condition String
+  action    String
+  active    Boolean @default(true)
+}
+
+model Campaign {
+  id          String  @id @default(cuid())
+  platform    String
+  name        String
+  spend       Float
+  impressions Int
+  clicks      Int
+  leads       Int
+  status      String
+}
