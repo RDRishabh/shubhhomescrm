@@ -6,22 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "db:seed": "tsx prisma/seed.ts",
-    "db:reset": "prisma migrate reset --force && npm run db:seed"
+    "lint": "eslint"
   },
   "dependencies": {
-    "@prisma/client": "^6.4.0",
-    "@types/pg": "^8.20.0",
     "date-fns": "^4.4.0",
     "framer-motion": "^12.40.0",
     "lucide-react": "^1.21.0",
     "next": "16.2.9",
-    "pg": "^8.22.0",
-    "prisma": "^6.4.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.8.1",
+    "shubhhomescrm-root": "file:..",
     "sonner": "^2.0.7",
     "zustand": "^5.0.14"
   },
@@ -38,8 +33,6 @@
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4",
     "tailwindcss-animate": "^1.0.7",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   }
 }
