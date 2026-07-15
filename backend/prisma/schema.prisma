@@ -1,4 +1,5 @@
-// Prisma schema for Aether CRM - Neon Postgres
+// Prisma schema for ShubhHomes CRM - PostgreSQL
+// Updated: Added JSONB support for flexible Excel imports
 
 generator client {
   provider = "prisma-client-js"
@@ -9,23 +10,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Core CRM Entities
+// ─── Core CRM Entities ───────────────────────────────
 
 model Lead {
   id            String    @id @default(cuid())
   name          String
   phone         String
-  email         String
-  source        String    // Website, Meta Ads, etc.
-  stage         String    // New, Contacted, Visit, ...
-  budget        Float
-  project       String
-  assignedTo    String
+  email         String?
+  source        String    @default("Manual") // Website, Meta Ads, JustDial, Excel Import...
+  stage         String    @default("New")    // New, Contacted, Visit, Negotiation, Booked, Lost
+  budget        Float?
+  project       String?
+  assignedTo    String?
   createdAt     DateTime  @default(now())
   lastActivity  DateTime  @updatedAt
-  tags          String[]  // Hot, Warm...
-  value         Float
+  tags          String[]  // Hot, Warm, Cold...
+  value         Float     @default(0)
   updatedAt     DateTime  @updatedAt
+
+  // ── Flexible storage for extra columns from Excel ──
+  customFields  Json?     // {"Locality": "Baner", "Flat Preference": "3BHK", ...}
+  importId      String?   // Which import batch this lead came from
+
+  @@index([phone])
+  @@index([source])
+  @@index([stage])
 }
 
 model Unit {
@@ -94,7 +103,8 @@ model Agent {
   updatedAt DateTime @updatedAt
 }
 
-// Optional supporting entities
+// ─── Supporting Entities ─────────────────────────────
+
 model Workflow {
   id        String  @id @default(cuid())
   name      String
@@ -113,4 +123,45 @@ model Campaign {
   clicks      Int
   leads       Int
   status      String
+}
+
+// ─── Excel Import Pipeline ───────────────────────────
+
+model LeadImport {
+  id            String          @id @default(cuid())
+  fileName      String                              // "justdial_july_leads.xlsx"
+  uploadedBy    String          @default("admin")    // User who uploaded
+  totalRows     Int                                  // 150
+  processedRows Int             @default(0)          // 142
+  skippedRows   Int             @default(0)          // 8
+  status        String          @default("pending")  // pending → mapping → processing → completed → failed
+  columnMapping Json?                                // {"Full Name": "name", "Mobile": "phone", ...}
+  headers       String[]                             // ["Full Name", "Phone Number", "Ad Campaign", ...]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  rows          LeadImportRow[]
+}
+
+model LeadImportRow {
+  id          String      @id @default(cuid())
+  importId    String
+  import      LeadImport  @relation(fields: [importId], references: [id], onDelete: Cascade)
+  rowNumber   Int                               // Excel row number
+  rawData     Json                              // {"Full Name": "Rahul Sharma", "Mobile": "9876543210", ...}
+  status      String      @default("pending")   // pending, mapped, inserted, skipped, error
+  errorMsg    String?                           // "Missing phone number"
+  leadId      String?                           // FK to created Lead (after successful insert)
+  createdAt   DateTime    @default(now())
+
+  @@index([importId])
+}
+
+model ImportTemplate {
+  id            String   @id @default(cuid())
+  name          String                       // "Meta Ads Import", "JustDial Format"
+  sourceName    String                       // "Meta Ads"
+  columnMapping Json                         // {"Full Name": "name", "Phone Number": "phone", ...}
+  createdBy     String   @default("admin")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
