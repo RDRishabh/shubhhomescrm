@@ -34,9 +34,7 @@ export default function PipelineFunnel({ data, onStageClick, selectedStage }: Pi
           <div className="font-semibold tracking-tight">Pipeline Funnel</div>
           <div className="text-sm text-[var(--text-muted)]">{totalLeads} active leads • {formatCurrency(bookedValue)} booked</div>
         </div>
-        <div className="text-right text-xs text-[var(--text-muted)]">
-          AI-powered drop-off analysis
-        </div>
+
       </div>
 
       <div className="space-y-2.5">
@@ -91,9 +89,8 @@ export default function PipelineFunnel({ data, onStageClick, selectedStage }: Pi
         })}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-[var(--border)] text-xs flex flex-wrap gap-x-4 gap-y-1 text-[var(--text-muted)]">
+      <div className="mt-4 pt-4 border-t border-[var(--border)] text-xs text-[var(--text-muted)]">
         <div>Click any stage to filter the dashboard</div>
-        <div className="text-[var(--accent)]">AI highlights high-risk drop-offs</div>
       </div>
     </div>
   );

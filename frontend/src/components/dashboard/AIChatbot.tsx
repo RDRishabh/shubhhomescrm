@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, X, Sparkles } from 'lucide-react';
+import { Send, Bot, X, Sparkles, MessageCircle } from 'lucide-react';
 import { ChatMessage, Role } from '@/lib/types';
 import { generateAIResponse } from '@/lib/aiChat';
 import { quickSuggestions, leads as allLeads, units as allUnits, agents as allAgents } from '@/lib/mockData';
@@ -23,9 +23,10 @@ export default function AIChatbot({ role }: AIChatbotProps) {
   ]);
   const [input, setInput] = useState('');
   const [isThinking, setIsThinking] = useState(false);
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const user = currentUsers[role];
 
   const context = {
@@ -45,6 +46,13 @@ export default function AIChatbot({ role }: AIChatbotProps) {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isThinking]);
+
+  // Focus the input field when the chatbot opens
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 300);
+    }
+  }, [isOpen]);
 
   const sendMessage = async (text?: string) => {
     const content = (text || input).trim();
@@ -81,32 +89,59 @@ export default function AIChatbot({ role }: AIChatbotProps) {
   };
 
   return (
-    <div className={cn("card flex flex-col overflow-hidden", isOpen ? "h-[540px]" : "h-14")}>
-      {/* Header */}
-      <div 
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between px-5 h-14 border-b border-[var(--border)] cursor-pointer hover:bg-[var(--surface-2)]"
-      >
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--accent)] text-white">
-            <Bot className="h-4 w-4" />
-          </div>
-          <div>
-            <div className="font-semibold text-sm tracking-tight flex items-center gap-1.5">
-              Aether AI Assistant 
-              <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 rounded font-mono">LIVE</span>
-            </div>
-            <div className="text-[10px] text-[var(--text-muted)] -mt-px">RBAC • Real-time CRM data</div>
-          </div>
-        </div>
-        <button className="text-[var(--text-muted)]">
-          {isOpen ? <X className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
-        </button>
-      </div>
+    <>
+      {/* Floating Action Button */}
+      <AnimatePresence>
+        {!isOpen && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+            onClick={() => setIsOpen(true)}
+            className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full bg-[var(--accent)] text-white shadow-lg shadow-[var(--accent)]/30 flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+            aria-label="Open AI Chatbot"
+          >
+            <MessageCircle className="h-6 w-6" />
+            {/* Pulse ring */}
+            <span className="absolute inset-0 rounded-full bg-[var(--accent)] animate-ping opacity-20" />
+          </motion.button>
+        )}
+      </AnimatePresence>
 
+      {/* Chat Window Overlay */}
       <AnimatePresence>
         {isOpen && (
-          <div className="flex flex-col flex-1 min-h-0">
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-3rem)] h-[540px] max-h-[calc(100vh-6rem)] rounded-2xl shadow-2xl shadow-black/20 border border-[var(--border)] bg-[var(--surface)] flex flex-col overflow-hidden"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 h-14 border-b border-[var(--border)] bg-[var(--surface)] shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--accent)] text-white">
+                  <Bot className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="font-semibold text-sm tracking-tight flex items-center gap-1.5">
+                    Aether AI Assistant 
+                    <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 rounded font-mono">LIVE</span>
+                  </div>
+                  <div className="text-[10px] text-[var(--text-muted)] -mt-px">RBAC • Real-time CRM data</div>
+                </div>
+              </div>
+              <button 
+                onClick={() => setIsOpen(false)} 
+                className="text-[var(--text-muted)] hover:text-[var(--text)] transition-colors rounded-lg hover:bg-[var(--surface-2)] p-1.5"
+                aria-label="Close chatbot"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
             {/* Messages */}
             <div ref={scrollRef} className="chat-container flex-1 overflow-y-auto px-4 pt-4 pb-2 space-y-3 text-sm">
               {messages.map((m) => (
@@ -139,7 +174,7 @@ export default function AIChatbot({ role }: AIChatbotProps) {
 
             {/* Suggestions */}
             {messages.length < 3 && (
-              <div className="px-4 pb-3 flex flex-wrap gap-1.5">
+              <div className="px-4 pb-3 flex flex-wrap gap-1.5 shrink-0">
                 {quickSuggestions.slice(0, 4).map((sug, idx) => (
                   <button
                     key={idx}
@@ -153,8 +188,9 @@ export default function AIChatbot({ role }: AIChatbotProps) {
             )}
 
             {/* Input */}
-            <form onSubmit={handleSubmit} className="p-3 pt-1 border-t border-[var(--border)] flex gap-2">
+            <form onSubmit={handleSubmit} className="p-3 pt-1 border-t border-[var(--border)] flex gap-2 shrink-0">
               <input
+                ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about leads, units, reports…"
@@ -163,14 +199,14 @@ export default function AIChatbot({ role }: AIChatbotProps) {
               <button 
                 type="submit" 
                 disabled={!input.trim()}
-                className="rounded-full bg-[var(--accent)] disabled:opacity-40 text-white h-10 w-10 flex items-center justify-center active:scale-95 transition"
+                className="rounded-full bg-[var(--accent)] disabled:opacity-40 text-white h-10 w-10 flex items-center justify-center active:scale-95 transition shrink-0"
               >
                 <Send className="h-4 w-4" />
               </button>
             </form>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 }

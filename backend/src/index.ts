@@ -6,6 +6,7 @@ import leadsRouter from './routes/leads';
 import unitsRouter from './routes/units';
 import paymentsRouter from './routes/payments';
 import documentsRouter from './routes/documents';
+import importsRouter from './routes/imports';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,6 +19,7 @@ app.use('/api/leads', leadsRouter);
 app.use('/api/units', unitsRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/documents', documentsRouter);
+app.use('/api/imports', importsRouter);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

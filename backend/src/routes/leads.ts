@@ -33,12 +33,12 @@ router.get('/:id', async (req: Request, res: Response) => {
 // POST create lead
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const { name, phone, email, source, stage, budget, project, assignedTo, tags, value } = req.body;
+    const { name, phone, email, source, stage, budget, project, assignedTo, tags, value, customFields, importId } = req.body;
     const result = await query(
-      `INSERT INTO "Lead" (name, phone, email, source, stage, budget, project, "assignedTo", tags, value, "lastActivity") 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW()) 
+      `INSERT INTO "Lead" (name, phone, email, source, stage, budget, project, "assignedTo", tags, value, "customFields", "importId", "lastActivity") 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()) 
        RETURNING *`,
-      [name, phone, email, source, stage || 'New', budget, project, assignedTo, tags || [], value || budget]
+      [name, phone, email, source, stage || 'New', budget, project, assignedTo, tags || [], value || budget, customFields ? JSON.stringify(customFields) : null, importId || null]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -65,6 +65,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     if (body.assignedTo !== undefined) { fields.push(`"assignedTo" = $${idx++}`); values.push(body.assignedTo); }
     if (body.tags !== undefined) { fields.push(`tags = $${idx++}`); values.push(body.tags); }
     if (body.value !== undefined) { fields.push(`value = $${idx++}`); values.push(body.value); }
+    if (body.customFields !== undefined) { fields.push(`"customFields" = $${idx++}`); values.push(JSON.stringify(body.customFields)); }
 
     fields.push(`"lastActivity" = NOW()`);
 

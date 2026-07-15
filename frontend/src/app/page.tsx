@@ -300,18 +300,13 @@ export default function AetherDashboard() {
 
       {/* Main Dashboard Grid */}
       <div className="dashboard-grid grid grid-cols-1 xl:grid-cols-12 gap-5">
-        {/* Pipeline Funnel — 7 cols */}
-        <div className="xl:col-span-7">
+        {/* Pipeline Funnel — full width */}
+        <div className="xl:col-span-12">
           <PipelineFunnel 
             data={pipeline} 
             onStageClick={handleStageClick} 
             selectedStage={selectedStage} 
           />
-        </div>
-
-        {/* AI Chatbot — 5 cols */}
-        <div className="xl:col-span-5">
-          <AIChatbot role={role} />
         </div>
 
         {/* Tasks + Leaderboard row */}
@@ -340,15 +335,7 @@ export default function AetherDashboard() {
           <ActivityFeed activities={activities} />
         </div>
 
-        {/* Full width footer strip */}
-        <div className="xl:col-span-12">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm border-t border-[var(--border)] pt-5 text-[var(--text-muted)]">
-            <div className="font-medium text-[var(--text)]">AI Highlights</div>
-            <div>• 2 stages flagged for high drop-off (Negotiation &amp; Visit)</div>
-            <div>• 4 leads have had no activity &gt; 5 days — auto-escalated</div>
-            <div className="ml-auto text-xs font-mono">Last synced moments ago • All data live</div>
-          </div>
-        </div>
+
       </div>
     </>
   );
@@ -416,12 +403,8 @@ export default function AetherDashboard() {
         onMarkRead={handleMarkRead} 
       />
 
-      {/* Floating role reminder for mobile */}
-      <div className="lg:hidden fixed bottom-4 right-4 z-50">
-        <div onClick={() => { /* could open role picker */ }} className="rounded-full shadow px-3.5 py-1.5 text-xs bg-[var(--surface)] border flex items-center gap-2">
-          Viewing as <span className="font-semibold text-[var(--accent)]">{role}</span>
-        </div>
-      </div>
+      {/* Floating AI Chatbot */}
+      <AIChatbot role={role} />
 
       {/* Add Lead Slide-in Right Drawer (shared) */}
       <AddLeadModal 
